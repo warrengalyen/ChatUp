@@ -23,6 +23,7 @@ export class AppComponent implements OnDestroy {
   // Join form
   mySessionId: string;
   myUserName: string;
+  tk:any;
 
   // Main video of the page, will be 'publisher' or one of the 'subscribers',
   // updated by click event in UserVideoComponent children
@@ -140,10 +141,8 @@ export class AppComponent implements OnDestroy {
   }
 
   updateMainStreamManager(streamManager: StreamManager) {
-    this.mainStreamManager = streamManager;
-    if(this.session.forceDisconnect) {
-      streamManager.stream.connection;
-    }
+    // this.session.forceDisconnect(streamManager.stream.connection);
+    this.session.forceUnpublish(streamManager.stream);
   }
 
 
@@ -203,7 +202,7 @@ export class AppComponent implements OnDestroy {
   createToken(sessionId): Promise<string> {
     return new Promise((resolve, reject) => {
 
-      const body = JSON.stringify({ session: sessionId });
+      const body = JSON.stringify({ session: sessionId, role: "MODERATOR"});
       const options = {
         headers: new HttpHeaders({
           'Authorization': 'Basic ' + btoa('OPENVIDUAPP:' + this.OPENVIDU_SERVER_SECRET),
@@ -220,6 +219,7 @@ export class AppComponent implements OnDestroy {
         .subscribe(response => {
           console.log(response);
           resolve(response['token']);
+          this.tk = response['token'];
         });
     });
   }
